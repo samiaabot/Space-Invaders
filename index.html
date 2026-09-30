@@ -1,199 +1,506 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html lang="pt-br">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Space Invaders</title>
+
     <style>
+
         canvas {
-            border: 1px solid #000;
             background: rgb(0, 0, 0);
+
             display: block;
+
             margin: 0 auto;
         }
-    </style>
-    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
-        integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
-</head>
 
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="crossorigin="anonymous"></script>
+
+</head>
 <body>
+
     <canvas id="quadro" width="600" height="600"></canvas>
 
+
+
     <script>
+
         $(document).ready(function () {
-            var canvas = $("#quadro")[0];
-            var ctx = canvas.getContext("2d");
-            var velocidade = 2;
-            var frame;
-            var cont = 0;
-            //  bola
+
+    var canvas = $("#quadro")[0];
+
+    var ctx = canvas.getContext("2d");
+
+    var velocidade = 2;
+
+    var frame;
+
+    var tiros = [];
+
+    var tirosAliens = [];
+
+    var aliens = [];
+
+    var tempoTiroAlien = 0;
+
+    var intervaloTiroAlien = 100;
+
+     function criarAlien(x, y) {
+
+         return {
+
+       x: x,
+
+       y: y,
+
+       vx: velocidade,
+
+       visivel: true,
+
+       desenha: function () {
+
+        ctx.fillStyle = "pink";
+
+        ctx.fillRect(this.x, this.y, 40, 20);
+
+        },
+
+        atualiza: function () {
+
+        this.x += this.vx;
+
+         }
+
+         };
+
+         }
+
+         var contx = 100;
+
+         var conty = 60;
 
 
 
-            //nova colisão com tijolos
-            //final colisão com tijolos
+        for (var i = 0; i < 24; i++) {
 
-            //var tijolinhos
-            var aliens = [];
-            /* function colisao2() {
-                 for(var i = 0; i < aliens.length; i++){
-                     if(aliens[i].visivel == true){
-                  var t1 = bola.y;
-                 var t2 = tijolos[i].y;
-                 var e1 = bola.x;
-                 var e2 = tijolos[i].x;
- 
-                 var b1 = bola.y + bola.altura;     
-                 var b2 = tijolos[i].y + 20;         
-                 var d1 = bola.x + bola.largura;    
-                 var d2 = tijolos[i].x + 100;        
- 
-                 if (b1 > t2 && t1 < b2 && d2 > e1 && e2 < d1) {
-                     aliens[i].visivel = false;
-                     bola.vy = -bola.vy;
-                 }    
-                 }
-             }
- 
-             }*/
+            aliens.push(
 
+            criarAlien(contx, conty)
 
-            function criarAlien(x, y) {
-                return {
-                    x: x,
-                    y: y,
-                    vx: velocidade,
-                    cor: "green",
-                    visivel: true,
-                    desenha: function () {
-                        ctx.fillStyle = this.cor;
-                        ctx.fillRect(this.x, this.y, 40, 20);
-                    },
-                    atualiza: function () {
-                        this.x += this.vx;
-                    }
-                };
-            }
-            var cont = 100;
-            var contY = 60;
-            for (var i = 0; i < 24; i++) {
-                aliens.push(criarAlien(cont, contY));
-                cont = cont + 50;
+                );
 
-                if (cont >= 500) {
-                    cont = 100;
-                    contY = contY + 30;
+            contx += 50;
+
+        if (contx >= 500) {
+
+            contx = 100;
+
+            conty += 30;
+
                 }
 
-            }
-
-            var nave = {
-                x: 300,
-                y: 500,
-                vx: 2,
-                cor: "green",
-                desenha: function () {
-                    ctx.fillStyle = this.cor;
-                    ctx.fillRect(this.x, this.y, 60, 20);
-                },
-                atualiza: function () {
-                    this.x += this.vx;
                 }
+
+        var nave = {
+
+         x: 300,
+
+         y: 500,
+
+         vx: 2,
+
+         cor: "green",
+
+         desenha: function () {
+
+         ctx.fillStyle = this.cor;
+
+         ctx.fillRect(this.x, this.y, 60, 20);},
+
+         atualiza: function () {
+
+            this.x += this.vx;
+
+                }
+
             };
-            //final tijolinhos
-            var sentido = 1;
 
-            function animacao() {
-                limpar();
-                nave.desenha();
-                nave.atualiza();
+            function atira() {
 
-                for (var i = 0; i < aliens.length; i++) {
-                    aliens[i].atualiza();
-                }
+         if (tiros.length == 0) {
 
-                for (let i = 0; i < aliens.length; i++) {
-                    if (aliens[0].x <= 0) {
-                        aliens[i].vx = aliens[i].vx; //
+            tiros.push({
 
-                    }
+            x: nave.x + 30,
 
+            y: nave.y,
+
+            largura: 5,
+
+            altura: 10
+
+                });
 
                 }
 
-                
-                if (aliens[0].x <= 0) {
-                    for (var i = 0; i < aliens.length; i++) {
-                        aliens[i].vx = aliens[i].vx;
-                    }
                 }
 
-                if (aliens[aliens.length - 1].x + 40 >= canvas.width) {
-                    for (var i = 0; i < aliens.length; i++) {
-                        aliens[i].vx = aliens[i].vx * -1;
-                    }
-                }
+            function atualizaTiro() {
 
+            if (tiros.length > 0) {
 
-                for (var i = 0; i < aliens.length; i++) {
-                    if (aliens[i].visivel == true) {
-                        aliens[i].desenha();
+            tiros[0].y -= 5;
+
+            ctx.fillStyle = "white";
+
+            ctx.fillRect(tiros[0].x, tiros[0].y, tiros[0].largura, tiros[0].altura);
+
+            if (tiros[0].y < 0) {
+
+            tiros.splice(0, 1);
+
                     }
 
                 }
 
-                /* if (colisao(bola, raquete)) {
-                     bola.vy = (bola.vy) * -1;// rebate para cima
-                 }*/
-
-                /*  colisao2();*/
-
-                //limites
-                if (nave.x <= 0) {
-                    nave.x = 0;
-                }
-                if (nave.x + 100 >= canvas.width) {
-                    nave.x = canvas.width - 100;
-                }
-
-                function resultado() {
-                    ctx.font = "20px Georgia";
-                    ctx.fillText("Você ganhou", canvas.width / 4, 30);
-                }
-
-
-                for (var i = 0; i < aliens.length; i++) {
-                    var cont = 0;
-                    if (aliens[i].visivel == false) {
-                        cont++;
-                    }
-
-                }
-                if (cont == 41) {
-                    resultado();
-                }
-
-
-                frame = requestAnimationFrame(animacao);
             }
-            animacao();
+
+            function atualizaAliens() {
+
+            for (var i = 0; i < aliens.length; i++) {
+
+                if (aliens[i].visivel == true) {
+
+                aliens[i].atualiza();
+
+            }
+
+        }
+
+     var menorX = canvas.width;
+
+     var maiorX = 0;
+
+     for (var i = 0; i < aliens.length; i++) {
+
+        if (aliens[i].visivel == true) {
+
+                if (aliens[i].x < menorX) {
+
+                     menorX = aliens[i].x;
+
+                        }
+
+        if (aliens[i].x + 40 > maiorX) {
+
+             maiorX = aliens[i].x + 40;
+
+            }
+
+         }
+
+        }
+
+                if (menorX <= 0 || maiorX >= canvas.width) {
+
+                    for (var i = 0; i < aliens.length; i++) {
+
+                    if (aliens[i].visivel == true) {
+
+                        aliens[i].vx *= -1;
+
+                    }
+
+                }
+
+            }
+
+        }
+
+         function desenharAliens() {
+
+            for (var i = 0; i < aliens.length; i++) {
+
+                 if (aliens[i].visivel == true) {
+
+                     aliens[i].desenha();
+
+                    }
+
+                }
+
+            }
+
+            function alienAtirar() {
+
+                if (tirosAliens.length == 0) {
+
+                var aliensVisiveis = [];
+
+                    for (var i = 0; i < aliens.length; i++) {
+
+                        if (aliens[i].visivel == true) {
+
+                            aliensVisiveis.push(aliens[i]);
+
+                        }
+
+                    }
+
+                    if (aliensVisiveis.length > 0) {
+
+                    var indice = Math.floor(Math.random() * aliensVisiveis.length);
+
+                    var alien = aliensVisiveis[indice];
+
+                        tirosAliens.push({
+
+                        x: alien.x + 20,
+
+                        y: alien.y + 20,
+
+                        largura: 5,
+
+                        altura: 10
+
+                        });
+
+                    }
+
+                }
+
+            }
+
+            function atualizaTiroAlien() {
+
+                if (tirosAliens.length > 0) {
+
+                    tirosAliens[0].y += 4;
+
+                    ctx.fillStyle = "red";
+
+                    ctx.fillRect(
+
+                    tirosAliens[0].x,
+
+                    tirosAliens[0].y,
+
+                    tirosAliens[0].largura,
+
+                    tirosAliens[0].altura
+
+                    );
+
+                    if (tirosAliens[0].y > canvas.height) {
+
+                        tirosAliens.splice(0, 1);
+
+                        }
+
+                    }
+
+                }
+
+            function colisaoTiro() {
+
+                if (tiros.length == 0) {
+
+                    return;
+
+                }
+
+                for (var i = 0; i < aliens.length; i++) {
+
+                    if (aliens[i].visivel == true) {
+
+                        if (
+
+                            tiros[0].x < aliens[i].x + 40 &&
+
+                            tiros[0].x + tiros[0].largura > aliens[i].x &&
+
+                            tiros[0].y < aliens[i].y + 20 &&
+
+                            tiros[0].y + tiros[0].altura > aliens[i].y
+
+                        ) {
+
+                            aliens[i].visivel = false;
+
+                            tiros.splice(0, 1);
+
+                            return;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            function colisaoTiroAlien() {
+
+            if (tirosAliens.length == 0) {
+
+                return;
+
+            }
+
+                if (
+
+                    tirosAliens[0].x < nave.x + 60 &&
+
+                    tirosAliens[0].x + tirosAliens[0].largura > nave.x &&
+
+                    tirosAliens[0].y < nave.y + 20 &&
+
+                    tirosAliens[0].y + tirosAliens[0].altura > nave.y
+
+                ) {
+
+                    tirosAliens.splice(0, 1);
+
+                    cancelAnimationFrame(frame);
+
+                    ctx.fillStyle = "white";
+
+                    ctx.font = "30px Georgia";
+
+                    ctx.fillText("Você perdeu", canvas.width / 2 - 80, 300);
+
+                }
+
+             }
+
+            function limitesNave() {
+
+                if (nave.x <= 0) {
+
+                    nave.x = 0;
+
+                    }
+
+                if (nave.x + 60 >= canvas.width) {
+
+                    nave.x = canvas.width - 60;
+
+                    }
+
+                }
+
+            function ganhar() {
+
+                var cont = 0;
+
+                for (var i = 0; i < aliens.length; i++) {
+
+                    if (aliens[i].visivel == false) {
+
+                         cont++;
+
+                        }
+
+                    }
+
+                if (cont == aliens.length) {
+
+                    ctx.fillStyle = "white";
+
+                    ctx.font = "30px Georgia";
+
+                    ctx.fillText("Você ganhou", canvas.width / 2 - 80, 300);
+
+                    return true;
+
+                }
+
+                return false;
+
+             }
 
             function limpar() {
+
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            }
+
+            function animacao() {
+
+            limpar();
+
+                nave.desenha();
+
+                nave.atualiza();
+
+                limitesNave();
+
+                atualizaTiro();
+
+                atualizaTiroAlien();
+
+                atualizaAliens();
+
+                desenharAliens();
+
+                colisaoTiro();
+
+                colisaoTiroAlien();
+
+                tempoTiroAlien++;
+
+                if (tempoTiroAlien >= intervaloTiroAlien) {
+
+                    alienAtirar();
+
+                    tempoTiroAlien = 0;
+
+                }
+
+                if (!ganhar()) {
+
+                    frame = requestAnimationFrame(animacao);
+
+                }
+
             }
 
             $(document).keydown(function (event) {
 
-                if (event.which == 37) { //esquerda
-                    nave.vx = -velocidade;
-                }
-                if (event.which == 39) { //direita
-                    nave.vx = velocidade;
-                }
-            });
-        });
-    </script>
-</body>
+                if (event.which == 37) {
 
-</html>
+                    nave.vx = -velocidade;
+
+                }
+
+                if (event.which == 39) {
+
+                    nave.vx = velocidade;
+
+                }
+
+                if (event.which == 32) {
+
+                    atira();
+
+                }
+
+            });
+
+            animacao();
+
+            });
+
+            </script>
+
+            </body>
+
+            </html>
